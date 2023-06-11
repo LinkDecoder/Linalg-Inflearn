@@ -90,3 +90,6 @@ print('\n Mat.imag:\n', ab_imag)
 # idx = [1,0,3,2], A[idx, :] 행렬의 row 순서 변경
 # A[]
 
+
+
+
