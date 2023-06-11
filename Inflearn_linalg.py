@@ -84,6 +84,7 @@ print('\n Mat.imag:\n', ab_imag)
 
 
 
+
 ## 6강: 행렬 기본 조작 (3)
 # A+-*/B, A*/b, b*/A
 # idx = [1,0,3,2], A[idx, :] 행렬의 row 순서 변경
@@ -93,7 +94,10 @@ print('\n Mat.imag:\n', ab_imag)
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 =======
 >>>>>>> d24ba8a51f06ec11a7b0da99c148798faa1e131c
+=======
+>>>>>>> parent of 4adc5a0 (will be delited for revert test)
