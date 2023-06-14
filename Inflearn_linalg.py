@@ -99,22 +99,31 @@ print('\n\n 6rd Class-----------------------')
 # sym: A가 symmetric matrix인 경우, Diagonal pivoting method 사용, Lapack: sysv
 # her: A가 Hermitian matrix인 경우, Diagonal pivoting method 사용, Lapack: hesv
 # pos: A가 positive definite인 경우, Cholesky decomposition 사용, posv
+# linalg.solve_triangular(A, b, lower=False) True: Lower matrix, False: Upper matrix, Lapack: trtrs
+# np.allclose(A@x, b) 두 값이 충분히 비슷하면 True, 아니면 False 반환
+# np.allclose(x, y)는 |x-y|<=(eps1 + eps2*|y|), eps1 = 1e-8, eps2 = 1e-5로 결정
 print('\n\n 7rd Class-----------------------')
 A1 = np.array([[1, 5, 0], [2, 4, -1], [0, -2, 0]])
 A2 = np.array([[1, -4, 2], [-2, 8, -9], [-1, 7, 0]])
-det1 = linalg.det(A)
+det1 = linalg.det(A1)
 print('\n det:\n', det1)
-A1_inv = lingalg.inv(A1)
+A1_inv = linalg.inv(A1)
 print('\n inv:\n', A1_inv)
 b = np.ones((3,1))
+b_lowerTri = np.ones((4, 1))
 A_singular = np.array([[1, 3, 4], [-4, 2, -6], [-3, -2, -7]])
 A_gen = np.array([[0, 1, 2], [1, 0, 3], [4, -3, 8]])
 A_symmetric = np.array([[1, 2, 1], [2, 1, 3], [1, 3, 1]])
 A_symmetric_complex = np.array([[1, 2-1j, 1+2j], [2-1j, 1, 3], [1+2j, 3, 1]])
-A_hermatian = np.array([[1, 2+1j, 1-2j], [2-1j, 1, 3], [1+2j, 3, 1]])
+A_hermitian = np.array([[2, 2+3j, 10-2j], [2-3j, 1, 3], [10+2j, 3, 2]])
 A_positivedefinite = np.array([[2, -1, 0], [-1, 2, -1], [0, -1, 2]])
-
-
-
-
+A_lowerTri = np.array([[1, 0, 0, 0], [1, 4, 0, 0], [5, 0, 1, 0], [8, 1, -2, 2]])
+x_gen = linalg.solve(A_gen, b, assume_a="gen")
+x_symmetric = linalg.solve(A_symmetric, b, assume_a="sym")
+x_symmetric_complex = linalg.solve(A_symmetric_complex, b, assume_a="sym")
+# x_hermitian = linalg.solve(A_hermitian, b, "her")
+x_positivedefinite = linalg.solve(A_positivedefinite, b, "pos")
+x_lowerTri = linalg.solve_triangular(A_lowerTri, b_lowerTri, lower=True)
+print('\n np.allclose:\n', np.allclose(A_gen@x_gen, b), np.allclose(A_symmetric@x_symmetric, b), \
+      np.allclose(A_positivedefinite@x_positivedefinite, b), np.allclose(A_lowerTri@x_lowerTri, b_lowerTri))
 
