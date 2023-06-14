@@ -83,16 +83,36 @@ print('\n Mat.imag:\n', ab_imag)
 
 
 
-
 ## 6강: 행렬 기본 조작 (3)
 # A+-*/B, A*/b, b*/A
 # idx = [1,0,3,2], A[idx, :] 행렬의 row 순서 변경
 # A[]
+print('\n\n 6rd Class-----------------------')
 
 
 
-
-
+## 7강: 일반 행렬
+# linalg.det(Mat) Lapack: zgetrf, dgetrf
+# linalg.inv(Mat) Lapack: getrf, getri
+# linalg.solve(A, b, assum_a="gen") Ax=b 해결, assum_a={gen, sym, her, pos}
+# gen: A의 성질을 모르는 경우, LU decomposition 사용, Lapack: gesv
+# sym: A가 symmetric matrix인 경우, Diagonal pivoting method 사용, Lapack: sysv
+# her: A가 Hermitian matrix인 경우, Diagonal pivoting method 사용, Lapack: hesv
+# pos: A가 positive definite인 경우, Cholesky decomposition 사용, posv
+print('\n\n 7rd Class-----------------------')
+A1 = np.array([[1, 5, 0], [2, 4, -1], [0, -2, 0]])
+A2 = np.array([[1, -4, 2], [-2, 8, -9], [-1, 7, 0]])
+det1 = linalg.det(A)
+print('\n det:\n', det1)
+A1_inv = lingalg.inv(A1)
+print('\n inv:\n', A1_inv)
+b = np.ones((3,1))
+A_singular = np.array([[1, 3, 4], [-4, 2, -6], [-3, -2, -7]])
+A_gen = np.array([[0, 1, 2], [1, 0, 3], [4, -3, 8]])
+A_symmetric = np.array([[1, 2, 1], [2, 1, 3], [1, 3, 1]])
+A_symmetric_complex = np.array([[1, 2-1j, 1+2j], [2-1j, 1, 3], [1+2j, 3, 1]])
+A_hermatian = np.array([[1, 2+1j, 1-2j], [2-1j, 1, 3], [1+2j, 3, 1]])
+A_positivedefinite = np.array([[2, -1, 0], [-1, 2, -1], [0, -1, 2]])
 
 
 
