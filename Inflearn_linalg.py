@@ -5,6 +5,8 @@ from custom_band import read_banded
 from custom_band import matmul_banded
 from custom_band import read_banded_h
 from custom_band import matmul_banded_h
+from custom_sp import matmul_toeplitz
+from custom_sp import matmul_circulant
 
 ## 1강: 행렬 및 벡터 표현법
 # np.array(Mat, dtype)
@@ -153,4 +155,19 @@ b = np.ones((4,))
 x1_band_h = linalg.solveh_banded(A1_band_h, b, lower=False)
 print('\n np.allclose:\n', np.allclose(matmul_banded_h(1, A1_band_h, x1_band_h), b))
 
+
+
+## 9강: 특수 행렬
+# linalg.solve_toeplitz((c, r), b), c, r: 1D vector, Levinson-Durbin recurson
+# linalg.toeplitz(c, r), toeplitz 행렬 생성
+# linalg.solve_circulatn(c, b), FFT로 문제 해결, c는 column임에 유의
+c = np.array([1, 3, 6, 10])
+r = np.array([1, -1, -2, -3])
+b = np.ones((4,), dtype=np.float64)
+x_toeplitz = linalg.solve_toeplitz((c, r), b)
+print('\n np.allclose:\n', np.allclose(matmul_toeplitz((c, r), x_toeplitz), b))
+c = np.array([2, -1, 0, 1, 0, 0, 1])
+b = np.ones((7,))
+x_circulant = linalg.solve_circulant(c, b)
+print('\n np.allclose:\n', np.allclose(matmul_circulant(c, x_circulant), b))
 
