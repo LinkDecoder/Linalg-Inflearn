@@ -1,5 +1,10 @@
 import numpy as np
 from scipy import linalg
+from print_lecture import print_custom as prt
+from custom_band import read_banded
+from custom_band import matmul_banded
+from custom_band import read_banded_h
+from custom_band import matmul_banded_h
 
 ## 1강: 행렬 및 벡터 표현법
 # np.array(Mat, dtype)
@@ -126,4 +131,26 @@ x_positivedefinite = linalg.solve(A_positivedefinite, b, "pos")
 x_lowerTri = linalg.solve_triangular(A_lowerTri, b_lowerTri, lower=True)
 print('\n np.allclose:\n', np.allclose(A_gen@x_gen, b), np.allclose(A_symmetric@x_symmetric, b), \
       np.allclose(A_positivedefinite@x_positivedefinite, b), np.allclose(A_lowerTri@x_lowerTri, b_lowerTri))
+
+
+
+## 8강: 밴드 행렬
+# linalg.solve_banded((lbw, ubw), Mat_Band, b), Ax=b의 해
+# LU decomposition Lapack: gbsv
+# tridiagonal solver Lapack: gtsv
+# linalg.solveh_banded(A_bandh, b, lower=False), Positive definite band 행렬인 경우
+# Cholesky decomposition Lapack: pbsv
+# LDLT decomposition Lapack: ptsv, Positive definite tridiagonal인 경우
+b = np.ones((5,))
+A1_band = read_banded("./Matrix_in_txt/p04_inp1.txt", (2,1), dtype=np.float64, delimiter=" ")
+A2_band = read_banded("./Matrix_in_txt/p06_inp2.txt", (1,1), dtype=np.float64, delimiter=" ")
+x1_band = linalg.solve_banded((2,1), A1_band, b)
+x2_band = linalg.solve_banded((1,1), A2_band, b)
+print('\n np.allclose:\n', np.allclose(matmul_banded((2,1), A1_band, x1_band), b))
+print('\n np.allclose:\n', np.allclose(matmul_banded((1,1), A2_band, x2_band), b))
+A1_band_h = read_banded_h("./Matrix_in_txt/p10_inp1.txt", 1, dtype=np.complex128, delimiter=" ", lower=False)
+b = np.ones((4,))
+x1_band_h = linalg.solveh_banded(A1_band_h, b, lower=False)
+print('\n np.allclose:\n', np.allclose(matmul_banded_h(1, A1_band_h, x1_band_h), b))
+
 
