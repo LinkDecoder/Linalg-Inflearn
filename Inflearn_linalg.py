@@ -143,6 +143,7 @@ print('\n np.allclose:\n', np.allclose(A_gen@x_gen, b), np.allclose(A_symmetric@
 # linalg.solveh_banded(A_bandh, b, lower=False), Positive definite band 행렬인 경우
 # Cholesky decomposition Lapack: pbsv
 # LDLT decomposition Lapack: ptsv, Positive definite tridiagonal인 경우
+print('\n\n 8rd Class-----------------------')
 b = np.ones((5,))
 A1_band = read_banded("./Matrix_in_txt/p04_inp1.txt", (2,1), dtype=np.float64, delimiter=" ")
 A2_band = read_banded("./Matrix_in_txt/p06_inp2.txt", (1,1), dtype=np.float64, delimiter=" ")
@@ -161,6 +162,8 @@ print('\n np.allclose:\n', np.allclose(matmul_banded_h(1, A1_band_h, x1_band_h),
 # linalg.solve_toeplitz((c, r), b), c, r: 1D vector, Levinson-Durbin recurson
 # linalg.toeplitz(c, r), toeplitz 행렬 생성
 # linalg.solve_circulatn(c, b), FFT로 문제 해결, c는 column임에 유의
+# linalg.circulant(c), circulant 행렬 생성
+print('\n\n 9rd Class-----------------------')
 c = np.array([1, 3, 6, 10])
 r = np.array([1, -1, -2, -3])
 b = np.ones((4,), dtype=np.float64)
@@ -171,3 +174,8 @@ b = np.ones((7,))
 x_circulant = linalg.solve_circulant(c, b)
 print('\n np.allclose:\n', np.allclose(matmul_circulant(c, x_circulant), b))
 
+
+
+## 10강: 동시에 여러 식 풀기
+# X = linalg.solve(A, B, assume_a="gen"), B에도 행렬을 넣으면 X도 행렬로 반환
+# 모든 solve 함수가 위와 같음
