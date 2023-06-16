@@ -179,3 +179,11 @@ print('\n np.allclose:\n', np.allclose(matmul_circulant(c, x_circulant), b))
 ## 10강: 동시에 여러 식 풀기
 # X = linalg.solve(A, B, assume_a="gen"), B에도 행렬을 넣으면 X도 행렬로 반환
 # 모든 solve 함수가 위와 같음
+
+
+
+## 11강: 고유치 계산
+# 보통 QR Algorithm 사용, 일부 Jacobi algorithm
+# A=QR, A1=R1Q1, A1=Q2R2, A2=R2Q2....Ak는 triangular 행렬로 수렴, eigenvalue가 동일
+# QR decompositino 방법: 보통 Householder method, 일부 Givens reduction
+# Numerical recipes chapter 2&11 참고
