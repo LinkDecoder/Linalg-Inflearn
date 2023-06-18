@@ -188,6 +188,14 @@ print('\n\n 10rd Class-----------------------')
 ## 11강: 고유치 계산
 # 보통 QR Algorithm 사용, 일부 Jacobi algorithm
 # A=QR, A1=R1Q1, A1=Q2R2, A2=R2Q2....Ak는 triangular 행렬로 수렴, eigenvalue가 동일
+# QR decompositino 방법: 보통 Householder method, 일부 Givens reduction ~n^3
+# Numerical recipes chapter 2&11 참고
+# QR algorithm, Two step approach
+# a) if symmetric(hermitian) matrix: 1) reduction to tridiagonal matrix: Householder ~n^3, 2) QR algorithm+shift method ~n
+# b) if non-symmetric matrix: 1) balancing ~n^2 (수치적 에러를 줄임, 에러는 주로 norm에 비례), 2) reduction to upper Hessenberg matrix ~n^3 3) QR algorithm+shift method ~n^2
+# Fundamentals of Matrix Computations, D.S.Watkins
+# 보통 QR Algorithm 사용, 일부 Jacobi algorithm
+# A=QR, A1=R1Q1, A1=Q2R2, A2=R2Q2....Ak는 triangular 행렬로 수렴, eigenvalue가 동일
 # QR decompositino 방법: 보통 Householder method, 일부 Givens reduction
 # Numerical recipes chapter 2&11 참고
 print('\n\n 11rd Class-----------------------')
