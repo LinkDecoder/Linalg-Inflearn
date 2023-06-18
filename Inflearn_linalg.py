@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import linalg
+import timeit
 from print_lecture import print_custom as prt
 from custom_band import read_banded
 from custom_band import matmul_banded
@@ -7,6 +8,7 @@ from custom_band import read_banded_h
 from custom_band import matmul_banded_h
 from custom_sp import matmul_toeplitz
 from custom_sp import matmul_circulant
+from custom_decomp import perm_from_piv
 
 ## 1강: 행렬 및 벡터 표현법
 # np.array(Mat, dtype)
@@ -179,6 +181,7 @@ print('\n np.allclose:\n', np.allclose(matmul_circulant(c, x_circulant), b))
 ## 10강: 동시에 여러 식 풀기
 # X = linalg.solve(A, B, assume_a="gen"), B에도 행렬을 넣으면 X도 행렬로 반환
 # 모든 solve 함수가 위와 같음
+print('\n\n 10rd Class-----------------------')
 
 
 
@@ -187,3 +190,87 @@ print('\n np.allclose:\n', np.allclose(matmul_circulant(c, x_circulant), b))
 # A=QR, A1=R1Q1, A1=Q2R2, A2=R2Q2....Ak는 triangular 행렬로 수렴, eigenvalue가 동일
 # QR decompositino 방법: 보통 Householder method, 일부 Givens reduction
 # Numerical recipes chapter 2&11 참고
+print('\n\n 11rd Class-----------------------')
+
+
+
+## 12강: 고유치 계산(일반 행렬)
+# (eigvals, eigvecs) = linalg.eig(A, M, right=True), Ax=lamda*x or Ax=lamda*M*x, right=false이면 eigenvalue만 반환
+# (eigvals, eigvecs) = linalg.eigh(A, M, eigvals_only=False), A가 symmetric/hermitian, M이 positive definite, Lapack: (syevr, heevr, sygvd, hevgd)
+# 1)reduction to tridiagonal form, Householder 2)dqds algorithm/Relatively Robust Representations, Lapack: 1)sytrd, hetrd 2)stemr, ormtr, unmtr
+# Linear Algebra and its application, B.N.Parlett & I.S.Dhillon
+# 실행 시간=time_end-time_start, time_start = timeit.default_timer(), time_end = timeit.default_timer()
+print('\n\n 12rd Class-----------------------')
+A_eig = np.array([[0, -1], [1, 0]]) # eigvals = (i, -i), eigvecs=[[1, -i], [1, i]]
+(eigvals, eigvecs) = linalg.eig(A_eig)
+print('\n (eigvals, eigvecs):\n', eigvals, '\n', eigvecs)
+v1 = eigvecs[:, 0]
+print('\n Norm of eigvecs:\n', linalg.norm(v1))
+comp1 = A_eig@eigvecs
+comp2 = eigvecs*eigvals
+print('\n np.allclose:\n', np.allclose(comp1, comp2))
+eigvals_comp = linalg.eig(A_eig, right=False)
+print('\n np.allclose:\n', np.allclose(eigvals, eigvals_comp))
+A_eigh = np.array([[6, 3, 1, 5], [3, 0, 5, 1], [1, 5, 6, 2], [5, 1, 2, 2]])
+(eighvals, eighvecs) = linalg.eigh(A_eigh)
+print('\n (eighvals, eighvecs):\n', eighvals, '\n', eighvecs)
+comp1_eigh = A_eigh@eighvecs
+comp2_eigh = eighvecs*eighvals
+print('\n np.allclose:\n', np.allclose(comp1_eigh, comp2_eigh))
+
+
+
+## 13강: 고유치 계산(밴드 행렬)
+# (eigvals, eigvecs) = linalg.eig_banded(A_baded_half, lower=False), A는 symmetric/hermitian upper banded matrix
+print('\n\n 13rd Class-----------------------')
+A_banded_symmetric = np.array([[1, 5, 2, 0], [5, 2, 5, 2], [2, 5, 3, 5], [0, 2, 5, 4]])
+A_banded_symmetric_upper = np.array([[0, 0, 2, 2], [0, 5, 5, 5], [1, 2, 3, 4]])
+(eigvals_band, eigvecs_band) = linalg.eig_banded(A_banded_symmetric_upper)
+print('\n (eigvals_band, eigvecs_band):\n', eigvals_band, '\n', eigvecs_band)
+comp1 = A_banded_symmetric@eigvecs_band
+comp2 = eigvecs_band*eigvals_band
+print('\n np.allclose:\n', np.allclose(comp1, comp2))
+
+
+
+## 14강: Power method
+# 주어진 eigenvalue 중 가장 큰 값 및 이에 해당하는 eigenvector를 구하는 알고리즘
+# convergence ratio: lamda2/lamda1, 알고리즘이 수렴하는 속도를 나타내는 수
+# Inverse power method: A 대신 inv(A)로 power method를 적용 시 eigenvalue 중 가장 작은 값 및 이에 해당하는 eigenvector 계산
+# inv(A)를 직접 계산하여 사용하지 않음, LU decompostion하여 적용
+print('\n\n 14rd Class-----------------------')
+A_pm = np.array([[6, 5], [1, 2]], dtype=np.float64) #lamda=(7, 1)
+x_iter = np.array([1,0], dtype=np.float64)
+for k in range(1, 100):
+    x_new = A_pm@x_iter
+    x_new_normalized = x_new/linalg.norm(x_new)
+    mu = np.vdot(x_new, A_pm@x_new)/np.vdot(x_new, x_new)
+    x_iter = x_new
+
+
+
+## 15강: 행렬 분해(1)
+# (P, L, U) = linalg.lu(A), A=PLU, 실제 계산에서는 다른 함수를 사용함에 유의
+# (lu, piv) = linalg.lu_factor(A), lu: L과 U를 한 행렬에 저장, piv: 1D array, row interchange 정보 저장, i row는 piv[i]와 interchange
+print('\n\n 15rd Class-----------------------')
+A_lu = np.array([[2, 4, -1, 5, -2], [-4, -5, 3, -8, 1], [2, -5, -4, 1, 8], [-6, 0, 7, -3, 1]])
+(P, L, U) = linalg.lu(A_lu)
+print('\n P, L, U:\n', P)
+print()
+prt(L, fmt="%0.2f")
+print()
+prt(U, fmt="%0.2f")
+print('\n A_lu:\n', P@L@U)
+(lu, piv) = linalg.lu_factor(A_lu)
+perm_A_lu = perm_from_piv(piv)
+print('\n A_lu:')
+prt((L@U)[perm_A_lu, :], fmt="%0.1f")
+
+
+
+
+
+
+
+
+
