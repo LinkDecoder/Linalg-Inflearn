@@ -252,6 +252,9 @@ for k in range(1, 100):
 ## 15강: 행렬 분해(1)
 # (P, L, U) = linalg.lu(A), A=PLU, 실제 계산에서는 다른 함수를 사용함에 유의
 # (lu, piv) = linalg.lu_factor(A), lu: L과 U를 한 행렬에 저장, piv: 1D array, row interchange 정보 저장, i row는 piv[i]와 interchange
+# linalg.lu_solve((lu, piv), b), Ax=b 계산 ~n^2, Lapack: gettrs
+# (L, D, perm) = linalg.ldl(A, lower=True, hermitian=True), A=LDLT or UDUT, A: symemtric or Hermitian, Diagonal pivoting method, D: block diagonal(최대 2x2 block) L: lower triangular matrix와 permutation matrix의 곱
+# A = (PL)D(PL)T의 형태로 분해, 즉 L은 PL이며 lower triangular가 아닐 수 있음, Lapack: sytrf, hetrf
 print('\n\n 15rd Class-----------------------')
 A_lu = np.array([[2, 4, -1, 5, -2], [-4, -5, 3, -8, 1], [2, -5, -4, 1, 8], [-6, 0, 7, -3, 1]])
 (P, L, U) = linalg.lu(A_lu)
@@ -261,16 +264,62 @@ prt(L, fmt="%0.2f")
 print()
 prt(U, fmt="%0.2f")
 print('\n A_lu:\n', P@L@U)
-(lu, piv) = linalg.lu_factor(A_lu)
+A_lu_sol = np.array([[7, 5, 6, 6], [1, 2, 2, 8], [5, 4, 4, 8], [9, 5, 8, 7]])
+b_lu = np.ones((4,))
+(lu, piv) = linalg.lu_factor(A_lu_sol)
 perm_A_lu = perm_from_piv(piv)
 print('\n A_lu:')
 prt((L@U)[perm_A_lu, :], fmt="%0.1f")
+x_lu = linalg.lu_solve((lu, piv), b_lu)
+print('\n x_lu:\n', x_lu)
+comp1 = A_lu_sol@x_lu
+comp2 = b_lu
+print('\n np.allclose:\n', np.allclose(comp1, comp2))
+A_ldl = np.array([[9, 1, 1], [1, 0, -1], [1, -1, 4]])
+(L, D, perm) = linalg.ldl(A_ldl)
+print('\n A_ldl:')
+prt((L@D@L.T), fmt="%0.1f")
 
 
 
+## 16강: 행렬 분해(2)
+# Ax=b, A가 positive definite, Cholesky decomposition 사용 시 pivoting없이도 매우 안정적
+# R = linalg.cholesky(A, lower=False), A=RTR, LU보다 2배 가량 빠름, Lapack: potrf
+# linalg.cho_solve((R, False), b), False는 R이 upper임을 의미, Lapack: potrs
+# decomposition을 한 이후 속도차이: LU > cholesky
+# 1)A가 고정되고 b가 많이 변하는 상황: LU, 2)A를 변화시키는 상황: Cholesky
+# R_band_h = linalg.cholesky_banded(A_band_h, lower=False), A가 밴드행렬인 경우 Cholesky decomposition, R_band_h도 같은 형태의 밴드 upper form임에 유의
+# linalg.cho_solve_banded((R_band_h, False), b)
+print('\n\n 16rd Class-----------------------')
+A_cho = np.array([[1, -2j], [2j, 5]])
+b_cho = np.ones((2,))
+R_A = linalg.cholesky(A_cho, lower=False)
+print('\n R_A:')
+prt(R_A, fmt="%0.1f")
+print('\n A_cho:')
+prt(R_A.T.conjugate()@R_A, fmt="%0.1f")
+x_cho = linalg.cho_solve((R_A, False), b_cho)
+comp1 = A_cho@x_cho
+comp2 = b_cho
+print('\n np.allclose:\n', np.allclose(comp1, comp2))
+A_band_h = np.array([[0, 0, 1j, 2, 3j], [0, -1, -2, 3, 4], [9, 8, 7, 6, 9]])
+b_band_h = np.ones((5,))
+R_band_h = linalg.cholesky_banded(A_band_h, lower=False)
+x_cho_band = linalg.cho_solve_banded((R_band_h, False), b_band_h)
+comp1 = matmul_banded_h(2, A_band_h, x_cho_band)
+comp2 = b_band_h
+print('\n np.allclose:\n', np.allclose(comp1, comp2))
 
 
 
-
+## 17강: Low-Level Lapack 활용
+# gbtrf=linalg.get_lapack_funcs("gbtrf", dtype=np.float64), PA=LU, P가 A앞에 있음에 유의, 밴드 행렬의 LU decomposition, Lapack: gbtrf
+# (LU_band, piv, info) = gbtrf(A_band_LU, lbw, ubw), lbw와 ubw가 tuple이 아님에 유의, i: 0(정상), >0(singular), <0(잘못된 입력), A_band_LU의 경우 기존에 사용하던 band 행렬의 upper form이 아님
+# 1)기존 A_band row size: lbw+ubw+1, 2)A_band_LU의 row size: lbw*2+ubw+1 (A_band_LU는 위쪽에 더미행렬이 추가되어있으며, 형태는 "A_band_LU의 형태.png" 참고)
+# LU_band의 형태는 upper matrix아래 lower matrix가 결합된 형태이며, 그 형태는 "A_band_LU의 형태.png" 참고 
+# Lapack은 메모리 절약을 위해 원래의 A_band 위에 새로운 LU를 덮어씌우므로 위와 같은 과정이 필요
+# piv의 경우 행렬 분해(1)과 비슷하지만 다르며, "LU_band lapack 사용 시 piv를 사용한 LU 재구성.png" 참고
+print('\n\n 17rd Class-----------------------')
+A_band = np.array([[]])
 
 
