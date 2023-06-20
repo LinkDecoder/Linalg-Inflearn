@@ -1,5 +1,7 @@
 import numpy as np
 from scipy import linalg
+import matplotlib.pyplot as plt
+from skimage import io as imgio
 import timeit
 from print_lecture import print_custom as prt
 from custom_band import read_banded
@@ -8,7 +10,8 @@ from custom_band import read_banded_h
 from custom_band import matmul_banded_h
 from custom_sp import matmul_toeplitz
 from custom_sp import matmul_circulant
-from custom_decomp import perm_from_piv
+from custom_decomp import perm_from_piv, LU_from_LU_band
+
 
 ## 1강: 행렬 및 벡터 표현법
 # np.array(Mat, dtype)
@@ -55,7 +58,7 @@ print('\nRandom mat:\n', C_rand)
 # np.diag(Mat or 1Darr) 대각선 부분을 1D화 or 대각행렬 생성
 # np.diagflat(1Darr) 1D 행렬을 대각선에 두고 2D 정사각행렬 생성
 # Mat.flatten = np.raven(a) 1D화 한 뒤 카피(flatten)/같은 메모리(ravel)
-print('\n\n 4rd Class-----------------------')
+print('\n\n 4th Class-----------------------')
 a = np.array([[1,2,3], [4,5,6], [7,8,9]], dtype=np.float64)
 b_reshaped = np.reshape(a, (1,9))
 print('\n b_reshaped:\n', b_reshaped)
@@ -78,7 +81,7 @@ print('\n a\'s trace:\n', val_trace)
 # np.matmul(A, B) or A @ B
 # np.vdot(u, v) complex인 경우 u_conj dot v 임에 유의
 # np.dot(u, v) complex인 경우 그냥 dot을 계산함
-print('\n\n 5rd Class-----------------------')
+print('\n\n 5th Class-----------------------')
 a = np.array([[1,2],[3,4]], dtype=np.float64)
 b = np.array([[-1, -2],[-3,-4]], dtype=np.float64)
 A_hstacked = np.hstack((a, b))
@@ -96,7 +99,7 @@ print('\n Mat.imag:\n', ab_imag)
 # A+-*/B, A*/b, b*/A
 # idx = [1,0,3,2], A[idx, :] 행렬의 row 순서 변경
 # A[]
-print('\n\n 6rd Class-----------------------')
+print('\n\n 6th Class-----------------------')
 
 
 
@@ -111,7 +114,7 @@ print('\n\n 6rd Class-----------------------')
 # linalg.solve_triangular(A, b, lower=False) True: Lower matrix, False: Upper matrix, Lapack: trtrs
 # np.allclose(A@x, b) 두 값이 충분히 비슷하면 True, 아니면 False 반환
 # np.allclose(x, y)는 |x-y|<=(eps1 + eps2*|y|), eps1 = 1e-8, eps2 = 1e-5로 결정
-print('\n\n 7rd Class-----------------------')
+print('\n\n 7th Class-----------------------')
 A1 = np.array([[1, 5, 0], [2, 4, -1], [0, -2, 0]])
 A2 = np.array([[1, -4, 2], [-2, 8, -9], [-1, 7, 0]])
 det1 = linalg.det(A1)
@@ -145,7 +148,7 @@ print('\n np.allclose:\n', np.allclose(A_gen@x_gen, b), np.allclose(A_symmetric@
 # linalg.solveh_banded(A_bandh, b, lower=False), Positive definite band 행렬인 경우
 # Cholesky decomposition Lapack: pbsv
 # LDLT decomposition Lapack: ptsv, Positive definite tridiagonal인 경우
-print('\n\n 8rd Class-----------------------')
+print('\n\n 8th Class-----------------------')
 b = np.ones((5,))
 A1_band = read_banded("./Matrix_in_txt/p04_inp1.txt", (2,1), dtype=np.float64, delimiter=" ")
 A2_band = read_banded("./Matrix_in_txt/p06_inp2.txt", (1,1), dtype=np.float64, delimiter=" ")
@@ -165,7 +168,7 @@ print('\n np.allclose:\n', np.allclose(matmul_banded_h(1, A1_band_h, x1_band_h),
 # linalg.toeplitz(c, r), toeplitz 행렬 생성
 # linalg.solve_circulatn(c, b), FFT로 문제 해결, c는 column임에 유의
 # linalg.circulant(c), circulant 행렬 생성
-print('\n\n 9rd Class-----------------------')
+print('\n\n 9th Class-----------------------')
 c = np.array([1, 3, 6, 10])
 r = np.array([1, -1, -2, -3])
 b = np.ones((4,), dtype=np.float64)
@@ -181,7 +184,7 @@ print('\n np.allclose:\n', np.allclose(matmul_circulant(c, x_circulant), b))
 ## 10강: 동시에 여러 식 풀기
 # X = linalg.solve(A, B, assume_a="gen"), B에도 행렬을 넣으면 X도 행렬로 반환
 # 모든 solve 함수가 위와 같음
-print('\n\n 10rd Class-----------------------')
+print('\n\n 10th Class-----------------------')
 
 
 
@@ -198,7 +201,7 @@ print('\n\n 10rd Class-----------------------')
 # A=QR, A1=R1Q1, A1=Q2R2, A2=R2Q2....Ak는 triangular 행렬로 수렴, eigenvalue가 동일
 # QR decompositino 방법: 보통 Householder method, 일부 Givens reduction
 # Numerical recipes chapter 2&11 참고
-print('\n\n 11rd Class-----------------------')
+print('\n\n 11th Class-----------------------')
 
 
 
@@ -208,7 +211,7 @@ print('\n\n 11rd Class-----------------------')
 # 1)reduction to tridiagonal form, Householder 2)dqds algorithm/Relatively Robust Representations, Lapack: 1)sytrd, hetrd 2)stemr, ormtr, unmtr
 # Linear Algebra and its application, B.N.Parlett & I.S.Dhillon
 # 실행 시간=time_end-time_start, time_start = timeit.default_timer(), time_end = timeit.default_timer()
-print('\n\n 12rd Class-----------------------')
+print('\n\n 12th Class-----------------------')
 A_eig = np.array([[0, -1], [1, 0]]) # eigvals = (i, -i), eigvecs=[[1, -i], [1, i]]
 (eigvals, eigvecs) = linalg.eig(A_eig)
 print('\n (eigvals, eigvecs):\n', eigvals, '\n', eigvecs)
@@ -230,7 +233,7 @@ print('\n np.allclose:\n', np.allclose(comp1_eigh, comp2_eigh))
 
 ## 13강: 고유치 계산(밴드 행렬)
 # (eigvals, eigvecs) = linalg.eig_banded(A_baded_half, lower=False), A는 symmetric/hermitian upper banded matrix
-print('\n\n 13rd Class-----------------------')
+print('\n\n 13th Class-----------------------')
 A_banded_symmetric = np.array([[1, 5, 2, 0], [5, 2, 5, 2], [2, 5, 3, 5], [0, 2, 5, 4]])
 A_banded_symmetric_upper = np.array([[0, 0, 2, 2], [0, 5, 5, 5], [1, 2, 3, 4]])
 (eigvals_band, eigvecs_band) = linalg.eig_banded(A_banded_symmetric_upper)
@@ -246,7 +249,7 @@ print('\n np.allclose:\n', np.allclose(comp1, comp2))
 # convergence ratio: lamda2/lamda1, 알고리즘이 수렴하는 속도를 나타내는 수
 # Inverse power method: A 대신 inv(A)로 power method를 적용 시 eigenvalue 중 가장 작은 값 및 이에 해당하는 eigenvector 계산
 # inv(A)를 직접 계산하여 사용하지 않음, LU decompostion하여 적용
-print('\n\n 14rd Class-----------------------')
+print('\n\n 14th Class-----------------------')
 A_pm = np.array([[6, 5], [1, 2]], dtype=np.float64) #lamda=(7, 1)
 x_iter = np.array([1,0], dtype=np.float64)
 for k in range(1, 100):
@@ -263,7 +266,7 @@ for k in range(1, 100):
 # linalg.lu_solve((lu, piv), b), Ax=b 계산 ~n^2, Lapack: gettrs
 # (L, D, perm) = linalg.ldl(A, lower=True, hermitian=True), A=LDLT or UDUT, A: symemtric or Hermitian, Diagonal pivoting method, D: block diagonal(최대 2x2 block) L: lower triangular matrix와 permutation matrix의 곱
 # A = (PL)D(PL)T의 형태로 분해, 즉 L은 PL이며 lower triangular가 아닐 수 있음, Lapack: sytrf, hetrf
-print('\n\n 15rd Class-----------------------')
+print('\n\n 15th Class-----------------------')
 A_lu = np.array([[2, 4, -1, 5, -2], [-4, -5, 3, -8, 1], [2, -5, -4, 1, 8], [-6, 0, 7, -3, 1]])
 (P, L, U) = linalg.lu(A_lu)
 print('\n P, L, U:\n', P)
@@ -298,7 +301,7 @@ prt((L@D@L.T), fmt="%0.1f")
 # 1)A가 고정되고 b가 많이 변하는 상황: LU, 2)A를 변화시키는 상황: Cholesky
 # R_band_h = linalg.cholesky_banded(A_band_h, lower=False), A가 밴드행렬인 경우 Cholesky decomposition, R_band_h도 같은 형태의 밴드 upper form임에 유의
 # linalg.cho_solve_banded((R_band_h, False), b)
-print('\n\n 16rd Class-----------------------')
+print('\n\n 16th Class-----------------------')
 A_cho = np.array([[1, -2j], [2j, 5]])
 b_cho = np.ones((2,))
 R_A = linalg.cholesky(A_cho, lower=False)
@@ -327,7 +330,120 @@ print('\n np.allclose:\n', np.allclose(comp1, comp2))
 # LU_band의 형태는 upper matrix아래 lower matrix가 결합된 형태이며, 그 형태는 "A_band_LU의 형태.png" 참고 
 # Lapack은 메모리 절약을 위해 원래의 A_band 위에 새로운 LU를 덮어씌우므로 위와 같은 과정이 필요
 # piv의 경우 행렬 분해(1)과 비슷하지만 다르며, "LU_band lapack 사용 시 piv를 사용한 LU 재구성.png" 참고
-print('\n\n 17rd Class-----------------------')
-A_band = np.array([[]])
+# gbtrs = linalg.get_lapack_funcs("gbtrs", dtype=np.float64), 밴드 행렬의 LU decomposition solver
+# (x, info) = gbtrs(LU_band, lbw, ubw, b, piv), LU_band와 piv는 gbtrf의 결과, info: 0(정상), <0(잘못된 입력)
+print('\n\n 17th Class-----------------------')
+lbw = 2
+ubw = 1
+A_band = np.array([[0, 2, 2, 2, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 0], [2, 2, 2, 0, 0]])
+b = np.ones((5,))
+dummy_array = np.zeros((lbw, A_band.shape[1]))
+A_band_LU = np.vstack((dummy_array, A_band))
+gbtrf = linalg.get_lapack_funcs("gbtrf", dtype=np.float64)
+(LU_band, piv, info) = gbtrf(A_band_LU, lbw, ubw)
+(L, U) = LU_from_LU_band((LU_band, piv), lbw)
+perm = perm_from_piv(piv)
+P = np.identity(5)[perm, :]
+print('\n A_band:\n', P.T@L@U)
+gbtrs = linalg.get_lapack_funcs("gbtrs", dtype=np.float64)
+(x_band_LU, info) = gbtrs(LU_band, lbw, ubw, b, piv)
+comp1 = matmul_banded((lbw, ubw), A_band, x_band_LU)
+comp2 = b
+print('\n np.allclose:\n', np.allclose(comp1, comp2))
 
 
+
+## 18강: 행렬 분해(3)
+# (Q, R) = linalg.qr(A, mode="economic"), mode(A: m x n): full(기본, Q: m x m, R: m x n), economic(Q: m x n, R: n x n), Lapack: geqrf, orgqr, ungqr
+# (H, U) = linalg.hessenberg(A, calc_q=True), calc_q: True(U도 계산, 일반적으로는 관심x), False(U는 반환x, default),Hessenberg Reduction(A=UHUT or A=UHU*, U: orthogonal/unitary, H: upper Hessenberg), House holder method ~n^3
+print('\n\n 18th Class-----------------------')
+A_qr = np.tri(4, 3, k=0)
+(Q, R) = linalg.qr(A_qr, mode="economic")
+print('\n Q:\n', Q, '\nR:\n', R, '\nnp.allclose:\n', np.allclose(A_qr, Q@R))
+A_qrAlgorithms = np.array([[1, 3, 3], [-3, -5, -3], [3, 3, 1]]) # lambda: 1, -2, -2
+Ak = np.copy(A_qrAlgorithms)
+for k in range(0, 100):
+    (Q, R) = linalg.qr(Ak)
+    Ak = R @ Q
+print('\n Ak\'s diag:\n', np.diag(Ak))
+A_hessenberg = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+(H, U) = linalg.hessenberg(A_hessenberg, calc_q=True)
+print('\n H:\n', H, '\nU:\n', U, '\nnp.allclose:\n', np.allclose(A_hessenberg, U@H@U.T))
+
+
+
+## 19강: 행렬분해 후 여러 식을 한꺼번에 풀기
+# X = linalg.lu_solve((lu, piv), B), LU, X와 B자리에 2D 행렬을 삽입
+# X = linalg.cho_solve((R, False), B), Cholesky, X와 R자리에 2D 행렬을 삽입
+# (X, info) = gbtrs(LU_band, lbw, ubw, B, piv), LU band, X와 B자리에 2D 행렬을 삽입
+# b가 미리 많이 주어진다면, 위와 같이 기본적인 solver를 사용하면 된다.
+print('\n\n 19th Class-----------------------')
+
+
+
+## 20강: SVD & Least-Sqaures Solution
+# (U, s, VT) = linalg.svd(A, compute_uv=True), compute_uv: True(U, VT도 계산), False(s만 계산), A=UsVT(Singular decomposition)
+# U: m x m, VT: n x n, V가 아님에 유의, s: 1D array min(m, n), 큰 값부터 작은 값순으로 입력되어있으며 0도 포함될 수 있음 
+# A=U@linalg.diagsvd(s, A.shape[0], A.shape[1])@VT, Lapack: gesvd
+# SVD는 행렬 형태와 관계없이 잘 작동된다.
+# Reduced SVD: "Reduced SVD 설명.png" 참고, nonzero singular value를 기반으로 각 행렬을 축소하여 표현
+# Ar = U[:, :r]@np.diag(s[:r])@VT[:r, :], r: rank(A), cf) Ar=U[:, :r]*s[:r]@VT[:r, :]로도 표현 가능
+# r = s.shape[0] - sum(np.allclose(lx, 0) for lx in s)
+# Truncated SVD: "Truncated SVD 설명.png" 참고, nonzero singular value도 일부 버리고 At 계산
+# At = U[:, :t]@np.diag(s[:t])@VT[:t, :]
+# ColA = linalg.orth(A, rcond=None), A의 Columnn space
+# NullA = linalg.null_space(A, rcond=None), A의 Null space, V의 Column임에 유의(VT 아님)
+# "Column space와 Null space 설명.png" 및 "SVD와 Fundamental subspaces의 관계.png" 참고
+# pinv_A = linalg.pinv(A, rcond=None), Pseudoinverse 행렬 계산, A+ = VrD-1UrT, least-squares solution 계산에 사용
+# rcond: rcond*s_max 이하의 s값은 무시 (모두 동일한 의미의 옵션, 기본값: 약 2.22e-16, double precision의 해상도)
+# (X_hat, res, rank, s) = linalg.lstsq(A, b, cond=None), cond: rcond와 의미 동일, res: residual(||b-Ax||), Ax=b의 Least-Sqaure Solution의 계산, Lapack: gelsd
+# res에 빈 값 반환: rank A < n(rank deficient) or m<n일 시
+# AX = B의 형태의 여러 식을 Least-squares 방법으로 한꺼번에 푸는 것이 가능
+print('\n\n 20th Class-----------------------')
+A_svd = np.array([[1, -1], [-2, 2], [2, -2]])
+(U, s, VT) = linalg.svd(A_svd, compute_uv=True)
+print('\n U:\n', U, '\ns:\n', s, '\nVT:\n', VT)
+print('\nnp.allclose:\n', np.allclose(A_svd, U@linalg.diagsvd(s, A_svd.shape[0], A_svd.shape[1])@VT))
+r = s.shape[0] - sum(np.allclose(lx, 0) for lx in s)
+print('\n rank:\n', r)
+ColA = linalg.orth(A_svd)
+NullA = linalg.null_space(A_svd)
+print('\n Column Space:\n', ColA, '\n Null space\n', NullA)
+pinv_A = linalg.pinv(A_svd)
+print('\n Pseudoinverse:\n', pinv_A)
+Ur = U[:, :r]
+Vr = VT[:r, :].T
+D = np.diag(s[:r])
+rpinv_A = Vr@linalg.inv(D)@Ur.T
+print('\n np.allclose:\n', np.allclose(rpinv_A, pinv_A))
+A_lstsq = np.array([[1, 3, 4], [-4, 2, -6], [-3, -2, -7]])
+b = np.ones(3,)
+(x_hat, res, rank, s) = linalg.lstsq(A_lstsq, b)
+print('\n b:\n', b, '\n Least-squares sol:\n', A_lstsq@x_hat)
+
+
+
+## 21강: Least-Squares Method 활용
+print('\n\n 21th Class-----------------------')
+
+
+
+## 22강: SVD 활용 흑백 이미지 압축
+# 압축률 = t*(m+n+1)/(m*n), r을 t개로 truncated SVD한 경우
+# scikit-image 설치 후, from skimage import io as imgio
+print('\n\n 22th Class-----------------------')
+img_mat = imgio.imread('flower.jpg', as_gray=True)
+(U, s, VT) = linalg.svd(img_mat)
+t = 80
+m = img_mat.shape[0]
+n = img_mat.shape[1]
+compression_ratio = t*(m+n+1)/(m*n)
+print('\n Compression ratio:\n', compression_ratio)
+A_trucated = U[:, :t]*s[:t]@VT[:t, :]
+plt.imshow(A_trucated, cmap='gray')
+plt.show()
+
+
+
+## 23강: 선형변환 시각화
+print('\n\n 23th Class-----------------------')
