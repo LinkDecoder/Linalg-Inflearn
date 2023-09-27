@@ -11,5 +11,8 @@ from custom_sp import matmul_circulant
 from custom_decomp import perm_from_piv
 
 A = np.array([[1, 2], [3, 4]])
+B = np.array([1,2])
+
+
 
 
