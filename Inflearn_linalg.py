@@ -57,7 +57,7 @@ print('\nRandom mat:\n', C_rand)
 # np.tril(Mat) 행렬에서 하삼각행렬 생성
 # np.diag(Mat or 1Darr) 대각선 부분을 1D화 or 대각행렬 생성
 # np.diagflat(1Darr) 1D 행렬을 대각선에 두고 2D 정사각행렬 생성
-# Mat.flatten = np.raven(a) 1D화 한 뒤 카피(flatten)/같은 메모리(ravel)
+# Mat.flatten = np.ravel(a) 1D화 한 뒤 카피(flatten)/같은 메모리(ravel)
 print('\n\n 4th Class-----------------------')
 a = np.array([[1,2,3], [4,5,6], [7,8,9]], dtype=np.float64)
 b_reshaped = np.reshape(a, (1,9))
