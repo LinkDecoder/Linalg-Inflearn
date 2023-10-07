@@ -166,7 +166,7 @@ print('\n np.allclose:\n', np.allclose(matmul_banded_h(1, A1_band_h, x1_band_h),
 ## 9강: 특수 행렬
 # linalg.solve_toeplitz((c, r), b), c, r: 1D vector, Levinson-Durbin recurson
 # linalg.toeplitz(c, r), toeplitz 행렬 생성
-# linalg.solve_circulatn(c, b), FFT로 문제 해결, c는 column임에 유의
+# linalg.solve_circulant(c, b), FFT로 문제 해결, c는 column임에 유의
 # linalg.circulant(c), circulant 행렬 생성
 print('\n\n 9th Class-----------------------')
 c = np.array([1, 3, 6, 10])
