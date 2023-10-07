@@ -232,7 +232,7 @@ print('\n np.allclose:\n', np.allclose(comp1_eigh, comp2_eigh))
 
 
 ## 13강: 고유치 계산(밴드 행렬)
-# (eigvals, eigvecs) = linalg.eig_banded(A_baded_half, lower=False), A는 symmetric/hermitian upper banded matrix
+# (eigvals, eigvecs) = linalg.eig_banded(A_banded_half, lower=False), A는 symmetric/hermitian upper banded matrix
 print('\n\n 13th Class-----------------------')
 A_banded_symmetric = np.array([[1, 5, 2, 0], [5, 2, 5, 2], [2, 5, 3, 5], [0, 2, 5, 4]])
 A_banded_symmetric_upper = np.array([[0, 0, 2, 2], [0, 5, 5, 5], [1, 2, 3, 4]])
